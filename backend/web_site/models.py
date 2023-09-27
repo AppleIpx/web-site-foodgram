@@ -31,6 +31,7 @@ class Ingredient(models.Model):
 
     class Meta:
         verbose_name = "Ингредиенты"
+        verbose_name_plural = "Ингредиенты"
 
     def __str__(self):
         return self.name
@@ -43,7 +44,7 @@ class Recipe(models.Model):
     description = models.TextField(verbose_name="Текстовое описание")
     ingredient = models.ManyToManyField(Ingredient, verbose_name="Ингридиенты", through='IngredientInRecipe', blank=False, related_name="recipes",)
     # through это связка с IngredientInRecipe как будет называться таблица в бд
-    tag = models.ManyToManyField(Tag, verbose_name="Тэг", blank=False, through="TagsInRecipe", related_name="recipes",)
+    tags = models.ManyToManyField(Tag, verbose_name="Тэг", blank=False, through="TagsInRecipe", related_name="recipes",)
     cooking_time = models.PositiveSmallIntegerField(verbose_name="Время приготовления", blank=False, )
     pub_date = models.DateTimeField(auto_now=True, verbose_name="Время публикации", editable=False, )
 

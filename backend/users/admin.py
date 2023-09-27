@@ -7,5 +7,5 @@ admin.site.register(models.Follow)
 
 @register(models.User)
 class CustomUserAdmin(admin.ModelAdmin):
-    fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
+    fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'password', )
     search_fields = ('username', 'email',)

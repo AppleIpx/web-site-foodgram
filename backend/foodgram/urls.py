@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('api/base-auth/', include('rest_framework.urls')),  # rest_framework_log_password
     path('api/', include("users.urls")),
+    path('api/', include("web_site.urls")),
     # path("", include(router.urls)),
     # path('api/', include('djoser.urls')), #api/auth/users/ регистрация
     # re_path(r'^auth/', include('djoser.urls.authtoken')), #auth/token/login/ токен

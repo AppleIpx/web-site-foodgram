@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from web_site.models import *
+from web_site.models import Ingredient, Tag
+from users.serializers import UserSerializer
 from . import models
 from drf_extra_fields.fields import Base64ImageField
 
@@ -32,18 +33,18 @@ class AddIngredientToRecipeSerializers(serializers.ModelSerializer):
 class CreateRecipeSerializers(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None, use_url=True)
     # сохранение изображения в видде строки - ссылки
-    author = User(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = AddIngredientToRecipeSerializers(many=True)
     # many указывает на то, что будет много данных(список или множество)
     cooking_time = serializers.IntegerField()
-    tag = serializers.SlugRelatedField(many=True, queryset=models.Tag.objects.all(), slug_field="id")
+    tags = serializers.SlugRelatedField(many=True, queryset=models.Tag.objects.all(), slug_field="id")
 
     # queryset - это запрос к бд, который определяет откуда брать данные.
     # slug_field - поле, которое будет использоваться для связывания с тегами
 
     class Meta:
         model = models.Recipe
-        fields = ["id", "tag", "author", "ingredients", "name", "image", "description", "cooking_time"]
+        fields = ["id", "tags", "author", "ingredients", "name", "image", "description", "cooking_time"]
 
     def validate_coking_time(self, data):
         if data <= 0:
@@ -64,7 +65,7 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
             models.IngredientInRecipe.objects.create(infredient=infredient_mode, recipe=recipe, quantity=quantity)
         # в цикле происходит создание связей через модель IngredientInRecipe и для каждого ингредиента
         # в ingredients_data создается связь с рецептом указывая infredient_mode и quantity
-        recipe.tag.set(tags_data)
+        recipe.tags.set(tags_data)
         # здесь устанавливается связь между рецептом и тегами
         return recipe
 

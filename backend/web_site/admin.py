@@ -20,7 +20,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     class RecipeAdmin(admin.ModelAdmin):
         list_display = ('title', 'author', 'pub_date')
-        list_filter = ('title', 'author', 'tag',)
+        list_filter = ('title', 'author', 'tags',)
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):

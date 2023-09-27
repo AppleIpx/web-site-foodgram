@@ -15,7 +15,7 @@ class TagView(viewsets.ModelViewSet):
     queryset = models.Tag.objects.all()
     serializer_class = serializers.TagSerializers
     permission_classes = [AllowAny, ]
-    pogination_class = None
+    pagination_class = None
 
 
 class IngredientView(viewsets.ModelViewSet):
