@@ -85,14 +85,3 @@ class UserView(viewsets.ModelViewSet):
                                             context={"current_user": user})
         return paginator.get_paginated_response(serializer.data)
 
-
-# class AllUsersInfoView(generics.ListAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = AllUsersInfoSerializer
-#     permission_classes = (IsAuthenticated,)
-
-
-# class InfoAboutUserView(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = InfoAboutUserSerializer
-#     queryset = User.objects.all()
-#     permission_classes = (IsAuthenticated,)

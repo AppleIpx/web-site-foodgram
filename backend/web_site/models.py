@@ -16,6 +16,7 @@ class Tag(models.Model):
     slug = models.SlugField(verbose_name="Слаг", unique=True, max_length=200)
 
     class Meta:
+        ordering = ["name"]
         verbose_name = "Тэг"
         verbose_name_plural = "Тэги"
 
@@ -29,8 +30,7 @@ class Ingredient(models.Model):
     measurement_unit = models.CharField(verbose_name="Единица измерения", max_length=200)
 
     class Meta:
-        verbose_name = "Ингредиент"
-        verbose_name_plural = "Ингредиенты"
+        verbose_name = "Ингредиенты"
 
     def __str__(self):
         return self.name
@@ -48,6 +48,7 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(auto_now=True, verbose_name="Время публикации", editable=False, )
 
     class Meta:
+        ordering = ["-pub_date"]
         verbose_name = "Рецепт"
         verbose_name_plural = "Рецепты"
 

@@ -1,13 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.admin import register
+from . import models
+
+admin.site.register(models.Follow)
 
 
-from .models import User
-
-# admin.site.register(CustomUser)
-
-
-@admin.register(User)
+@register(models.User)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff',)
-    list_filter = ('username', 'email',)
+    fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', )
+    search_fields = ('username', 'email',)
