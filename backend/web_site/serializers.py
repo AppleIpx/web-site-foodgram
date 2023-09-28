@@ -21,6 +21,44 @@ class IngredientInRecipeSerializers(serializers.ModelSerializer):
         fields = ("id", "name", "unit", "quantity")
 
 
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Ingredient
+        fields = ["id", "name", "measurement_unit"]
+
+
+class ShowRecipeSerializer(serializers.ModelSerializer):
+    tags = TagSerializers(read_only=True, many=True)
+    image = Base64ImageField()
+    author = UserSerializer(read_only=True)
+    ingredients = serializers.SerializerMethodField("get_ingredients")
+    is_favorite = serializers.SerializerMethodField("get_is_favorite")
+    is_in_shopping_cart = serializers.SerializerMethodField("get_is_in_shopping_cart")
+
+    class Meta:
+        model = models.Recipe
+        fields = ["id", "tags", "author", "ingredients", "is_favorite", "is_in_shopping_cart",
+                  "name", "image", "description", "cooking_time", ]
+
+    def get_ingredients(self, obj):
+        ingredients = models.IngredientInRecipe.objects.filter(recipe=obj)
+        return IngredientInRecipeSerializers(ingredients, many=True).data
+
+    def get_is_favorite(self, obj):
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return False
+        user = request.user
+        return models.Favorite.objects.filter(recipe=obj, user=user).exitst()
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get("request")
+        if request is None or request.user.is_anonymous:
+            return False
+        user = request.user
+        return models.ShoppingCart.objects.filter(recipe=obj, user=user).exitst()
+
+
 class AddIngredientToRecipeSerializers(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     # позволяет работать с первычными ключами

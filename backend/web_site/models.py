@@ -26,7 +26,6 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(verbose_name="Название ингридиента", max_length=200)
-    # quantity = models.CharField(verbose_name="Количество", max_length=10)
     measurement_unit = models.CharField(verbose_name="Единица измерения", max_length=200)
 
     class Meta:
@@ -34,7 +33,7 @@ class Ingredient(models.Model):
         verbose_name_plural = "Ингредиенты"
 
     def __str__(self):
-        return self.name
+        return f"{self.name}, {self.measurement_unit}"
 
 
 class Recipe(models.Model):
@@ -42,7 +41,7 @@ class Recipe(models.Model):
     title = models.CharField(verbose_name="Название", max_length=250, blank=False, )
     image = models.ImageField(blank=True)
     description = models.TextField(verbose_name="Текстовое описание")
-    ingredient = models.ManyToManyField(Ingredient, verbose_name="Ингридиенты", through='IngredientInRecipe', blank=False, related_name="recipes",)
+    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ингридиенты", through='IngredientInRecipe', blank=False, related_name="recipes",)
     # through это связка с IngredientInRecipe как будет называться таблица в бд
     tags = models.ManyToManyField(Tag, verbose_name="Тэг", blank=False, through="TagsInRecipe", related_name="recipes",)
     cooking_time = models.PositiveSmallIntegerField(verbose_name="Время приготовления", blank=False, )

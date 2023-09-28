@@ -9,7 +9,7 @@ admin.site.register(models.Ingredient)
 
 
 class IngredientInAdmin(admin.TabularInline):
-    model = models.Recipe.ingredient.through
+    model = models.Recipe.ingredients.through
     # class IngredientAdmin(admin.ModelAdmin):
     #     list_display = ('name',)
     #     list_filter = ('name',)

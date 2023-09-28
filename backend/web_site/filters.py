@@ -1,11 +1,11 @@
-import django_filters as filter
+import django_filters as filters
 from .models import Ingredient, Tag, Recipe
 
 
-class RecipeFilter(filter.FilterSet):
-    tag = filter.ModelMultipleChoiceFilter(field_name="tag_slug", to_field_name="slug", queryset=Tag.objects.all())
-    is_favorite = filter.CharFilter(method="get_is_favorite")
-    is_in_shopping_cart = filter.CharFilter(method="get_is_in_shopping_cart")
+class RecipeFilter(filters.FilterSet):
+    tag = filters.ModelMultipleChoiceFilter(field_name="tag_slug", to_field_name="slug", queryset=Tag.objects.all())
+    is_favorite = filters.CharFilter(method="get_is_favorite")
+    is_in_shopping_cart = filters.CharFilter(method="get_is_in_shopping_cart")
 
     class Meta:
         model = Recipe
@@ -24,8 +24,8 @@ class RecipeFilter(filter.FilterSet):
         return Recipe.objects.all()
 
 
-class IngredientFilter(filter.FilterSet):
-    name = filter.CharFilter(field_name="name", lookup_expr="startswith")
+class IngredientFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr="startswith")
 
     class Meta:
         model = Ingredient

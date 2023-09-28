@@ -18,14 +18,22 @@ class TagView(viewsets.ModelViewSet):
     pagination_class = None
 
 
-class IngredientView(viewsets.ModelViewSet):
+class IngredientsView(viewsets.ModelViewSet):
     queryset = models.Ingredient.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly, ]
+    serializer_class = serializers.IngredientSerializer
     filter_backends = [DjangoFilterBackend, ]
-    serializer_class = serializers.IngredientInRecipeSerializers
-    filter_class = IngredientFilter
+    # filter_class = IngredientFilter
     search_fields = ["name", ]
     pagination_class = None
+
+    def get_queryset(self):
+        name = str(self.request.query_params.get("name"))
+        queryset = self.queryset
+        if not name:
+            return queryset
+        start_queryset = queryset.filter(name__istartswith=name)
+        return start_queryset
 
 
 class RecipeView(viewsets.ModelViewSet):
