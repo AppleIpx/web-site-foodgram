@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -29,7 +30,8 @@ class Ingredient(models.Model):
     measurement_unit = models.CharField(verbose_name="Единица измерения", max_length=200)
 
     class Meta:
-        verbose_name = "Ингредиенты"
+        ordering = ['name']
+        verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
 
     def __str__(self):
@@ -37,14 +39,16 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    author = models.ForeignKey(User, verbose_name="Автор рецепта", on_delete=models.CASCADE, blank=False, related_name="recipes",)
-    title = models.CharField(verbose_name="Название", max_length=250, blank=False, )
-    image = models.ImageField(blank=True)
-    description = models.TextField(verbose_name="Текстовое описание")
-    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ингридиенты", through='IngredientInRecipe', blank=False, related_name="recipes",)
+    author = models.ForeignKey(User, verbose_name="Автор рецепта", on_delete=models.CASCADE,
+                            related_name="recipes",)
+    name = models.CharField(verbose_name="Название", max_length=250, )
+    image = models.ImageField()
+    text = models.TextField(verbose_name="Текстовое описание", )
+    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ингридиенты", through='IngredientInRecipe',
+                                          related_name="recipes",)
     # through это связка с IngredientInRecipe как будет называться таблица в бд
-    tags = models.ManyToManyField(Tag, verbose_name="Тэг", blank=False, through="TagsInRecipe", related_name="recipes",)
-    cooking_time = models.PositiveSmallIntegerField(verbose_name="Время приготовления", blank=False, )
+    tags = models.ManyToManyField(Tag, verbose_name="Тэг", through="TagsInRecipe", related_name="recipes",)
+    cooking_time = models.PositiveSmallIntegerField(verbose_name="Время приготовления",  )
     pub_date = models.DateTimeField(auto_now=True, verbose_name="Время публикации", editable=False, )
 
     class Meta:
@@ -53,18 +57,30 @@ class Recipe(models.Model):
         verbose_name_plural = "Рецепты"
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class IngredientInRecipe(models.Model):
-    ingredient = models.ForeignKey(Ingredient, verbose_name='ингредиент', on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, verbose_name='рецепт', on_delete=models.CASCADE)
-    quantity = models.DecimalField(max_digits=10, verbose_name="количество", decimal_places=2)
-    unit = models.CharField(verbose_name="Единица измерения", max_length=20)
+    ingredient = models.ForeignKey(Ingredient, verbose_name='ингредиент', on_delete=models.CASCADE, related_name='ingredients',)
+    recipe = models.ForeignKey(Recipe, verbose_name='рецепт', on_delete=models.CASCADE, related_name='recipes',)
+    amount = models.IntegerField(verbose_name="количество", validators=[MinValueValidator(1)], null=True)
+    # measurement_unit = models.CharField(verbose_name="Единица измерения", max_length=20)
 
     class Meta:
-        verbose_name = "Количество ингредиента в рецепте"
-        verbose_name_plural = verbose_name
+        verbose_name = "Ингредиенты в рецепте"
+        verbose_name_plural = "Ингредиенты в рецептах"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_combination'
+            )
+        ]
+
+    # def __str__(self):
+    #     return (f'{self.recipe.name}: '
+    #             f'{self.ingredient.name} - '
+    #             f'{self.amount} '
+    #             f'{self.ingredient.measurement_unit}')
 
 
 class TagsInRecipe(models.Model):
@@ -76,15 +92,15 @@ class TagsInRecipe(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, verbose_name="Пользователь", related_name="favorites",
+    user = models.ForeignKey(User, verbose_name="Пользователь", related_name="favorite",
                              on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, verbose_name="Рецепт", related_name="favorites",
+    recipe = models.ForeignKey(Recipe, verbose_name="Рецепт", related_name="favorite",
                                on_delete=models.CASCADE) #related_name используется для обратной связи
     # от recipe к Favorite. Таким образом можно получить доступ к списку избранным резептам пользователя.
     data_append = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["data_append"] #Будет происходить сортировка, от новых к старым
+        ordering = ["data_append"]
         verbose_name = "Избранный рецепт"
         verbose_name_plural = verbose_name
         unique_together = ("user", "recipe")
@@ -102,8 +118,10 @@ class ShoppingCart(models.Model):
 
     class Meta:
         ordering = ["data_append"]
-        verbose_name = "Список покупок"
-        verbose_name_plural = verbose_name
+        verbose_name = "Список покупки"
+        verbose_name_plural = "Список покупок"
+
+        # Делаем эти значения в бд уникальными
         unique_together = ("user", "recipe")
 
     def __str__(self):

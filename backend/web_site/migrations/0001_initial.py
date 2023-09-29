@@ -30,8 +30,7 @@ class Migration(migrations.Migration):
             name='IngredientInRecipe',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='количество')),
-                ('unit', models.CharField(max_length=20, verbose_name='Единица измерения')),
+                ('amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='количество')),
                 ('ingredient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='web_site.ingredient', verbose_name='ингредиент')),
             ],
             options={
@@ -43,15 +42,16 @@ class Migration(migrations.Migration):
             name='Recipe',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=250, verbose_name='Название')),
+                ('name', models.CharField(max_length=250, verbose_name='Название')),
                 ('image', models.ImageField(blank=True, upload_to='')),
-                ('description', models.TextField(verbose_name='Текстовое описание')),
+                ('text', models.TextField(verbose_name='Текстовое описание')),
                 ('cooking_time', models.PositiveSmallIntegerField(verbose_name='Время приготовления')),
                 ('pub_date', models.DateTimeField(auto_now=True, verbose_name='Время публикации')),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipes', to=settings.AUTH_USER_MODEL, verbose_name='Автор рецепта')),
-                ('ingredient', models.ManyToManyField(related_name='recipes', through='web_site.IngredientInRecipe', to='web_site.ingredient', verbose_name='Ингридиенты')),
+                ('ingredients', models.ManyToManyField(related_name='recipes', through='web_site.IngredientInRecipe', to='web_site.ingredient', verbose_name='Ингридиенты')),
             ],
             options={
+                'ordering': ['-pub_date'],
                 'verbose_name': 'Рецепт',
                 'verbose_name_plural': 'Рецепты',
             },
@@ -65,6 +65,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=200, unique=True, verbose_name='Слаг')),
             ],
             options={
+                'ordering': ['name'],
                 'verbose_name': 'Тэг',
                 'verbose_name_plural': 'Тэги',
             },
@@ -83,7 +84,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='recipe',
-            name='tag',
+            name='tags',
             field=models.ManyToManyField(related_name='recipes', through='web_site.TagsInRecipe', to='web_site.tag', verbose_name='Тэг'),
         ),
         migrations.AddField(

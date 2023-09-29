@@ -4,15 +4,11 @@ from .views import UserView
 
 router = DefaultRouter()
 router.register("users", UserView)
+# router.register(r"users", UserView, basename="users")
 
 urlpatterns = [
-    # path('api/create/', UserCreateView.as_view()),
-    # path('all/', AllUsersInfoView.as_view()),
-    # path('detail/<int:pk>', InfoAoutUserView.as_view(),),
-    # path('api/auth/', include('djoser.urls')), #api/auth/users/ регистрация
     path('auth/', include('djoser.urls.authtoken')), #api/auth/users/ регистрация
     path("", include(router.urls)),
-    # re_path(r'^auth/', include('djoser.urls.authtoken')), #auth/token/login/ токен
 ]
 
 

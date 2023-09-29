@@ -19,8 +19,8 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientInAdmin, ]
 
     class RecipeAdmin(admin.ModelAdmin):
-        list_display = ('title', 'author', 'pub_date')
-        list_filter = ('title', 'author', 'tags',)
+        list_display = ('name', 'author', 'pub_date')
+        list_filter = ('name', 'author', 'tags',)
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):

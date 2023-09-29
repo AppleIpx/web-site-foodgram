@@ -47,7 +47,8 @@ class RecipeView(viewsets.ModelViewSet):
         method = self.request.method
         if method == "POST" or method == "PATCH":
             return serializers.CreateRecipeSerializers
-        return serializers.ShoppingCartSerializers
+        return serializers.ShowRecipeSerializer
+        # return ReadRecipeSerializers
 
     """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
 

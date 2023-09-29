@@ -8,6 +8,7 @@ router = DefaultRouter()
 router.register(r"tags", TagView, basename="tags")
 router.register(r"ingredients", IngredientsView, basename="ingredients")
 router.register(r"recipes", RecipeView, basename="recipes")
+# router.register(r"users", RecipeView, basename="recipes")
 
 urlpatterns = [
     path("recipes/<int:recipe_id>/favorite", FavoriteView.as_view()),
