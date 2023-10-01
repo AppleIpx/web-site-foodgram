@@ -48,7 +48,7 @@ class Recipe(models.Model):
                                           related_name="recipes",)
     # through это связка с IngredientInRecipe как будет называться таблица в бд
     tags = models.ManyToManyField(Tag, verbose_name="Тэг", through="TagsInRecipe", related_name="recipes",)
-    cooking_time = models.PositiveSmallIntegerField(verbose_name="Время приготовления",  )
+    cooking_time = models.IntegerField(verbose_name="Время приготовления", validators=[MinValueValidator(1)], )
     pub_date = models.DateTimeField(auto_now=True, verbose_name="Время публикации", editable=False, )
 
     class Meta:
@@ -76,11 +76,11 @@ class IngredientInRecipe(models.Model):
             )
         ]
 
-    # def __str__(self):
-    #     return (f'{self.recipe.name}: '
-    #             f'{self.ingredient.name} - '
-    #             f'{self.amount} '
-    #             f'{self.ingredient.measurement_unit}')
+    def __str__(self):
+        return (f'{self.recipe.name}: '
+                f'{self.ingredient.name} - '
+                f'{self.amount} '
+                f'{self.ingredient.measurement_unit}')
 
 
 class TagsInRecipe(models.Model):

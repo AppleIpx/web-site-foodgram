@@ -72,7 +72,7 @@ class UserView(viewsets.ModelViewSet):
             return Response("Удаление прошло успешно", status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=["get", "post", ], detail=False, permission_classes=(IsAuthenticated,))
-    def show_all_subscriptions(self, request):
+    def subscriptions(self, request):
         user = request.user
         follow = Follow.objects.filter(user=user)
         user_obj = []

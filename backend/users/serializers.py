@@ -14,6 +14,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'password', 'first_name', 'last_name', 'email')
 
 
+
+
+
 class PasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
     # в запросе обязательно должен быть пароль
@@ -65,7 +68,7 @@ class ShowFollowerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("email", "id", "username", "first_name", "last_name",
-                  "is_subcribed", "recipes", "recipes_count")
+                  "is_subscribed", "recipes", "recipes_count")
 
     """obj - подписчик, проверка пользователя на подписку"""
 

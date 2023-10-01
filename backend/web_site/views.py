@@ -4,6 +4,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from . permissions import IsAuthorOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -38,7 +39,7 @@ class IngredientsView(viewsets.ModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     queryset = models.Recipe.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthorOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
     filter_class = RecipeFilter
     pagination_class = PageNumberPagination
@@ -108,6 +109,6 @@ class ShoppingCartViewSet(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @api_view(["GET", ])
-    def dowload_shopping_cart(self, request):
+    def download_shopping_cart(self, request):
         pass
 

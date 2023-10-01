@@ -8,6 +8,7 @@ router.register("users", UserView)
 
 urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')), #api/auth/users/ регистрация
+    # path('users/<int:user_id>/', UserView.as_view()),
     path("", include(router.urls)),
 ]
 

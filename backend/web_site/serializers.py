@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
@@ -57,6 +58,9 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
             return False
         user = request.user
         return models.Favorite.objects.filter(recipe=obj, user=user).exists()
+        # return (self.context.get('request').user.is_authenticated
+        #         and models.Favorite.objects.filter(user=self.context['request'].user,
+        #                                            recipe=obj).exists())
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get("request")
@@ -67,7 +71,9 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
 
 class AddIngredientToRecipeSerializers(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=models.Ingredient.objects.all())
+    # id = serializers.PrimaryKeyRelatedField(queryset=models.Ingredient.objects.all())
+    id = serializers.IntegerField()
+
     # позволяет работать с первычными ключами
 
     class Meta:
@@ -80,9 +86,8 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
     # сохранение изображения в видде строки - ссылки
     author = UserSerializer(read_only=True)
     ingredients = AddIngredientToRecipeSerializers(many=True)
-    # ingredients = SerializerMethodField()
     # many указывает на то, что будет много данных(список или множество)
-    cooking_time = serializers.IntegerField()
+    id = serializers.ReadOnlyField()
     tags = serializers.SlugRelatedField(many=True, queryset=models.Tag.objects.all(), slug_field="id")
 
     # queryset - это запрос к бд, который определяет откуда брать данные.
@@ -93,58 +98,58 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
         fields = ["id", "tags", "author", "ingredients", "name", "image",
                   "text", "cooking_time"]
 
-    def validate_cooking_time(self, data):
-        if data <= 0:
-            raise serializers.ValidationError("Введите число больше 0")
-        return data
+    def validate(self, obj):
+        for field in ['name', 'text', 'cooking_time']:
+            if not obj.get(field):
+                raise serializers.ValidationError(f'{field} - Обязательное поле.')
+        if not obj.get('tags'):
+            raise serializers.ValidationError('Нужно указать минимум 1 тег.')
+        if not obj.get('ingredients'):
+            raise serializers.ValidationError('Нужно указать минимум 1 ингредиент.')
+        inrgedient_id_list = [item['id'] for item in obj.get('ingredients')]
+        unique_ingredient_id_list = set(inrgedient_id_list)
+        if len(inrgedient_id_list) != len(unique_ingredient_id_list):
+            raise serializers.ValidationError('Ингредиенты должны быть уникальны.')
+        return obj
 
-    def create(self, validated_data):
-        ingredients_data = validated_data.pop("ingredients")
-        tags_data = validated_data.pop("tags")
+    @transaction.atomic
+    def tags_and_ingredients_set(self, recipe, tags, ingredients):
+        recipe.tags.set(tags)
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            amount = ingredient['amount']
 
-        # Создание рецепта с автором и остальными данными
-        author = self.context.get("request").user
-        recipe = models.Recipe.objects.create(author=author, **validated_data)
-
-        # Создание связей между рецептом и ингредиентами
-        for ingredient in ingredients_data:
-            ingredient_model = ingredient["id"]
-            amount = ingredient["amount"]
-            models.IngredientInRecipe.objects.create(
-                ingredient=ingredient_model, recipe=recipe, amount=amount
+            # Создаем запись в модели IngredientInRecipe
+            models.IngredientInRecipe.objects.create(recipe=recipe,
+                ingredient=Ingredient.objects.get(pk=ingredient_id),
+                amount=amount
             )
-        recipe.tags.set(tags_data)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(author=self.context['request'].user,
+                                       **validated_data)
+        self.tags_and_ingredients_set(recipe, tags, ingredients)
         return recipe
 
-
-
-    """Метод берет данные данные из запроса и создает новый рецепт и связанные с ним ингредиенты 
-    и теги, а затем возвращает созданный рецепт"""
-
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop("ingredients")
-        tags_data = validated_data.pop("tags")
-        # происходит извлечение данных об ингредиентах и тегах
-        models.TagsInRecipe.objects.filter(recipe=instance).delete()
-        models.IngredientInRecipe.objects.filter(recipe=instance).delete()
-        # удаляются все связи между текущим рецептом(instance) и тегами и ингредиентами в бд
-        for ingredient in ingredients_data:
-            ingredient_update = ingredient["id"]
-            amount = ingredient["amount"]
-            models.IngredientInRecipe.objects.create(ingredient=ingredient_update, recipe=instance, amount=amount)
-            # тут происходит создание новых связей между рецептом и ингредиентами
-            # цикл перебирает переданные ингредиенты и создает записи в модели(IngredientInRecipe), указывая
-            # к какому рецепту они относятся
-            instance.name = validated_data.pop("name")
-            instance.text = validated_data.pop("text")
-            if validated_data.get("image") is not None:
-                instance.image = validated_data.pop("image")
-            instance.cooking_time = validated_data.pop("cooking_time")
-            instance.tag.set(tags_data)
-            # тут обновление полей рецепта на основе переданных данных
-            instance.save()
-            # сохранение экземпляра рецепта в бд
-            return instance
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        models.IngredientInRecipe.objects.filter(recipe=instance,
+                                                 ingredient__in=instance.ingredients.all()).delete()
+        self.tags_and_ingredients_set(instance, tags, ingredients)
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        return ShowRecipeSerializer(instance,
+                                    context=self.context).data
 
 
 class FavoriteSerializers(serializers.ModelSerializer):
