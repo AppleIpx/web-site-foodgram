@@ -1,9 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+
+from .serializers import FavoriteSerializers
 from . permissions import IsAuthorOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,14 +46,13 @@ class RecipeView(viewsets.ModelViewSet):
     filter_class = RecipeFilter
     pagination_class = PageNumberPagination
 
+    """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
+
     def get_serializer_class(self):
         method = self.request.method
         if method == "POST" or method == "PATCH":
             return serializers.CreateRecipeSerializers
         return serializers.ShowRecipeSerializer
-        # return ReadRecipeSerializers
-
-    """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -82,6 +83,16 @@ class FavoriteView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         models.Favorite.objects.get(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# class FavoriteListView(generics.ListCreateAPIView):
+#     queryset = models.Favorite.objects.all()
+#     serializer_class = serializers.ShowRecipeSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def perform_create(self, serializer):
+#         # Устанавливайте текущего пользователя как владельца избранного рецепта
+#         serializer.save(user=self.request.user)
 
 
 class ShoppingCartViewSet(APIView):

@@ -14,14 +14,18 @@ class RecipeFilter(filters.FilterSet):
     def get_is_favorite(self, value):
         user = self.request.user
         if value:
-            return Recipe.objects.filter(shopping_cart_user=user)
-        return Recipe.objects.all()
+            """favorite__user обращается к полю user в модели Favorite, и фильтрует рецепты, которые 
+            связаны с указанным пользователем через эту модель"""
+            return Recipe.objects.filter(favorite__user=user)
+        # return Recipe.objects.all()
+        return None
 
     def get_is_in_shopping_cart(self, value):
         user = self.request.user
         if value:
             return Recipe.objects.filter(shopping_cart_user=user)
-        return Recipe.objects.all()
+        # return Recipe.objects.all()
+        return None
 
 
 class IngredientFilter(filters.FilterSet):
