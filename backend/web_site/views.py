@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .permissions import IsAuthorOrReadOnly
 from . import serializers, models
 
 
@@ -69,15 +70,15 @@ class RecipeView(viewsets.ModelViewSet):
 
 
 class FavoriteView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthorOrReadOnly, ]
 
     @action(methods=["post", ], detail=True, )
     def post(self, request, recipe_id):
         user = request.user
         data = {"user": user.id, "recipe": recipe_id, }
+        """Проверка, состоит ли объект модели в избранном для данного user и рецепта"""
         if models.Favorite.objects.filter(user=user, recipe_id=recipe_id).exists():
             return Response({"Ошибка": "Вы уже добавили в избранное"}, status=status.HTTP_400_BAD_REQUEST, )
-        """Проверка, состоит ли объект модели в избранном для данного user и рецепта"""
         serializer = serializers.FavoriteSerializers(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()

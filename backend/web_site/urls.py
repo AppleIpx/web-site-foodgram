@@ -13,6 +13,5 @@ router.register(r"recipes", RecipeView, basename="recipes")
 urlpatterns = [
     path("recipes/<int:recipe_id>/favorite/", FavoriteView.as_view()),
     path("recipes/<int:recipe_id>/shopping_cart/", ShoppingCartViewSet.as_view()),
-    # path("favorites/", FavoriteListView.as_view(actions={"get": "list"})),
     path("", include(router.urls)),
 ]
