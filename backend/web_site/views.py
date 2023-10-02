@@ -1,3 +1,5 @@
+from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, generics
@@ -49,16 +51,18 @@ class RecipeView(viewsets.ModelViewSet):
         user = self.request.user
         tags = self.request.query_params.getlist('tags')
         queryset = models.Recipe.objects.all()
+
         if is_favorited and is_favorited == "1":
             if user.is_authenticated:
-                # Фильтруем рецепты, которые добавлены в избранное текущим пользователем
                 queryset = models.Recipe.objects.filter(favorite__user=user)
-        else:
-            # Если пользователь анонимный, не отображаем ничего
-            queryset = models.Recipe.objects.all()
+
+        # Фильтруем рецепты по выбранным тегам
         if tags:
-            # Фильтруем рецепты по выбранным тегам
-            queryset = queryset.filter(tags__slug__in=tags)
+            #  это специальное выражение для фильтрации через связанные поля
+            tag_filter = Q(tags__slug__in=tags)
+            # distinct() для получения уникальных записей
+            queryset = queryset.filter(tag_filter).distinct()
+
         return queryset
 
     """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
@@ -125,5 +129,31 @@ class ShoppingCartViewSet(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @api_view(["GET", ])
-    def download_shopping_cart(self, request):
-        pass
+    def download_shopping_cart(request):
+        user = request.user
+        shopping_cart = user.shopping_cart.all()
+        buying_list = {}
+        for record in shopping_cart:
+            # для каждой записи получает связанный с ней рецепт
+            recipe = record.recipe
+            ingredients = models.IngredientInRecipe.objects.filter(recipe=recipe)
+            for ingredient in ingredients:
+                amount = ingredient.amount
+                name = ingredient.ingredient.name
+                measurement_unit = ingredient.ingredient.measurement_unit
+                if name not in buying_list:
+                    buying_list[name] = {
+                        "measurement_unit": measurement_unit,
+                        "amount": amount,
+                    }
+                else:
+                    buying_list[name]["amount"] = (
+                            buying_list[name]["amount"] + amount
+                    )
+        wishlist = []
+        for name, data in buying_list.items():
+            wishlist.append(
+                f"{name} - {data['amount']} {data['measurement_unit']}"
+            )
+        response = HttpResponse(wishlist, content_type="text/plain")
+        return response

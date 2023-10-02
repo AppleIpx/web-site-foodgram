@@ -10,7 +10,6 @@ from .models import Follow
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # fields = ('username', 'password', 'first_name', 'last_name', 'email')
         fields = ["id", "username", "email", "first_name", "last_name"]
 
 
@@ -32,6 +31,7 @@ class RecipeWithOutIngredientsSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    # source="key" означает, что в таблице token будет заполнено key
     token = serializers.CharField(source="key")
 
     class Meta:

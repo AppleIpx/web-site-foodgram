@@ -131,6 +131,7 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
         self.tags_and_ingredients_set(recipe, tags, ingredients)
         return recipe
 
+    # экземпляр модели
     def update(self, instance, validated_data):
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
