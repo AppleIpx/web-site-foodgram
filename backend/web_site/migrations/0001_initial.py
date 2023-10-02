@@ -96,14 +96,14 @@ class Migration(migrations.Migration):
             name='ShoppingCart',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('data_append', models.DateTimeField(auto_now=True)),
+                ('when_added', models.DateTimeField(auto_now=True)),
                 ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shopping_cart', to='web_site.recipe', verbose_name='Рецепты в списке покупок')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shopping_cart', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
             ],
             options={
                 'verbose_name': 'Список покупок',
                 'verbose_name_plural': 'Список покупок',
-                'ordering': ['data_append'],
+                'ordering': ['when_added'],
                 'unique_together': {('user', 'recipe')},
             },
         ),
@@ -111,14 +111,14 @@ class Migration(migrations.Migration):
             name='Favorite',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('data_append', models.DateTimeField(auto_now=True)),
+                ('when_added', models.DateTimeField(auto_now=True)),
                 ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='favorites', to='web_site.recipe', verbose_name='Рецепт')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='favorites', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
             ],
             options={
                 'verbose_name': 'Избранный рецепт',
                 'verbose_name_plural': 'Избранный рецепт',
-                'ordering': ['data_append'],
+                'ordering': ['when_added'],
                 'unique_together': {('user', 'recipe')},
             },
         ),

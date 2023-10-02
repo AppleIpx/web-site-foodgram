@@ -97,10 +97,10 @@ class Favorite(models.Model):
     recipe = models.ForeignKey(Recipe, verbose_name="Рецепт", related_name="favorite",
                                on_delete=models.CASCADE) #related_name используется для обратной связи
     # от recipe к Favorite. Таким образом можно получить доступ к списку избранным резептам пользователя.
-    data_append = models.DateTimeField(auto_now=True)
+    when_added = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["data_append"]
+        ordering = ["when_added"]
         verbose_name = "Избранный рецепт"
         verbose_name_plural = verbose_name
         unique_together = ("user", "recipe")
@@ -114,10 +114,10 @@ class ShoppingCart(models.Model):
                                on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name="Пользователь", related_name="shopping_cart",
                              on_delete=models.CASCADE)
-    data_append = models.DateTimeField(auto_now=True)
+    when_added = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["data_append"]
+        ordering = ["when_added"]
         verbose_name = "Список покупки"
         verbose_name_plural = "Список покупок"
 

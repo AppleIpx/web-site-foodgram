@@ -5,13 +5,10 @@ from rest_framework.decorators import api_view, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 
-from .serializers import FavoriteSerializers
-from . permissions import IsAuthorOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import serializers, models
-from .filters import IngredientFilter, RecipeFilter
 
 
 class TagView(viewsets.ModelViewSet):
@@ -26,7 +23,6 @@ class IngredientsView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly, ]
     serializer_class = serializers.IngredientSerializer
     filter_backends = [DjangoFilterBackend, ]
-    # filter_class = IngredientFilter
     search_fields = ["name", ]
     pagination_class = None
 
@@ -41,10 +37,22 @@ class IngredientsView(viewsets.ModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     queryset = models.Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly, ]
+    # permission_classes = [IsAuthorOrReadOnly, ]
+    permissions = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
-    filter_class = RecipeFilter
+    # filter_class = RecipeFilter
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        is_favorited = self.request.query_params.get('is_favorited')
+        user = self.request.user
+        if is_favorited and is_favorited == "1":
+            if user.is_authenticated:
+                # Фильтруем рецепты, которые добавлены в избранное текущим пользователем
+                return models.Recipe.objects.filter(favorite__user=user)
+        else:
+            # Если пользователь анонимный, не отображаем ничего
+            return models.Recipe.objects.all()
 
     """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
 
@@ -63,12 +71,12 @@ class RecipeView(viewsets.ModelViewSet):
 class FavoriteView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly, ]
 
-    @action(methods=["post", ], detail=True,)
+    @action(methods=["post", ], detail=True, )
     def post(self, request, recipe_id):
         user = request.user
         data = {"user": user.id, "recipe": recipe_id, }
         if models.Favorite.objects.filter(user=user, recipe_id=recipe_id).exists():
-            return Response({"Ошибка": "Вы уже добавили в избранное"}, status=status.HTTP_400_BAD_REQUEST,)
+            return Response({"Ошибка": "Вы уже добавили в избранное"}, status=status.HTTP_400_BAD_REQUEST, )
         """Проверка, состоит ли объект модели в избранном для данного user и рецепта"""
         serializer = serializers.FavoriteSerializers(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -83,16 +91,6 @@ class FavoriteView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         models.Favorite.objects.get(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# class FavoriteListView(generics.ListCreateAPIView):
-#     queryset = models.Favorite.objects.all()
-#     serializer_class = serializers.ShowRecipeSerializer
-#     permission_classes = [IsAuthenticated]
-#
-#     def perform_create(self, serializer):
-#         # Устанавливайте текущего пользователя как владельца избранного рецепта
-#         serializer.save(user=self.request.user)
 
 
 class ShoppingCartViewSet(APIView):
@@ -122,4 +120,3 @@ class ShoppingCartViewSet(APIView):
     @api_view(["GET", ])
     def download_shopping_cart(self, request):
         pass
-

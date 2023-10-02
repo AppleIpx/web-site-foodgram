@@ -149,6 +149,13 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
                                     context=self.context).data
 
 
+# class FavoriteListSerializers(ShowRecipeSerializer):
+#     class Meta:
+#         model = models.Recipe
+#         fields = ["id", "tags", "author", "ingredients", "is_favorited", "is_in_shopping_cart",
+#                   "name", "image", "text", "cooking_time", ]
+
+
 class FavoriteSerializers(serializers.ModelSerializer):
     recipe = serializers.PrimaryKeyRelatedField(queryset=models.Recipe.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=models.User.objects.all())
