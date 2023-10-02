@@ -47,13 +47,19 @@ class RecipeView(viewsets.ModelViewSet):
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
         user = self.request.user
+        tags = self.request.query_params.getlist('tags')
+        queryset = models.Recipe.objects.all()
         if is_favorited and is_favorited == "1":
             if user.is_authenticated:
                 # Фильтруем рецепты, которые добавлены в избранное текущим пользователем
-                return models.Recipe.objects.filter(favorite__user=user)
+                queryset = models.Recipe.objects.filter(favorite__user=user)
         else:
             # Если пользователь анонимный, не отображаем ничего
-            return models.Recipe.objects.all()
+            queryset = models.Recipe.objects.all()
+        if tags:
+            # Фильтруем рецепты по выбранным тегам
+            queryset = queryset.filter(tags__slug__in=tags)
+        return queryset
 
     """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
 

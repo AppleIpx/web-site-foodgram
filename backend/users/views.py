@@ -11,10 +11,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 class UserView(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
     queryset = User.objects.all()
+    serializer_class = UserSerializer
     permission_classes = (AllowAny, )
-    # имеют доступ все, также неавторизированные юзеры
     pagination_class = None
 
     @action(methods=["get"], detail=False, permission_classes=(IsAuthenticated,))

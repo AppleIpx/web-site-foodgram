@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from . import models
@@ -15,23 +14,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "first_name", "last_name"]
 
 
-# class ShowUserSerializer(UserSerializer):
-#     is_subscribed = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = User
-#         fields = ('email', 'id', 'username',
-#                   'first_name', 'last_name',
-#                   'is_subscribed')
-#
-#     def get_is_subscribed(self, obj):
-#         if (self.context.get('request')
-#                 and not self.context['request'].user.is_anonymous):
-#             return Subscribe.objects.filter(user=self.context['request'].user,
-#                                             author=obj).exists()
-#         return False
-
-
 class PasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
     # в запросе обязательно должен быть пароль
@@ -42,10 +24,11 @@ class PasswordSerializer(serializers.Serializer):
         fields = "__all__"
 
 
-class FavoriteRecipeSerializer(serializers.ModelSerializer):
+"""Рецепт без ингредиентов"""
+class RecipeWithOutIngredientsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ("id", "name", "image", "coking_time",)
+        fields = ("id", "name", "image", "cooking_time",)
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -76,8 +59,8 @@ class FollowerSerializer(serializers.ModelSerializer):
 
 
 class ShowFollowerSerializer(serializers.ModelSerializer):
-    recipes = FavoriteRecipeSerializer(serializers.ModelSerializer)
-    is_subscribed = serializers.SerializerMethodField("check_if_is_subscribed")
+    recipes = RecipeWithOutIngredientsSerializer(many=True, required=True)
+    is_subscribed = serializers.SerializerMethodField("if_is_subscribed")
     recipes_count = serializers.SerializerMethodField("get_recipes_count")
 
     class Meta:
@@ -93,6 +76,6 @@ class ShowFollowerSerializer(serializers.ModelSerializer):
             return False
         return Follow.objects.filter(user=request.user, following=obj).exists()
 
-    def get_reipes_count(self, obj):
+    def get_recipes_count(self, obj):
         count = obj.recipes.all().count()
         return count
