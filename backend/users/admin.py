@@ -14,3 +14,5 @@ class CustomUserAdmin(admin.ModelAdmin):
 @register(models.Follow)
 class FollowAdmin(admin.ModelAdmin):
     list_display = ("user", "following")
+    list_editable = ('user', 'following')
+    empty_value_display = '-пусто-'

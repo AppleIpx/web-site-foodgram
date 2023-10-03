@@ -50,11 +50,15 @@ class RecipeView(viewsets.ModelViewSet):
         is_favorited = self.request.query_params.get('is_favorited')
         user = self.request.user
         tags = self.request.query_params.getlist('tags')
+        author_id = self.request.query_params.get('author')
         queryset = models.Recipe.objects.all()
 
         if is_favorited and is_favorited == "1":
             if user.is_authenticated:
                 queryset = models.Recipe.objects.filter(favorite__user=user)
+
+        if author_id:
+            queryset = queryset.filter(author_id=author_id)
 
         # Фильтруем рецепты по выбранным тегам
         if tags:
