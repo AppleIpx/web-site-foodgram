@@ -1,39 +1,52 @@
 from django.contrib import admin
-from .models import Tag
 from . import models
-
-
-# admin.site.register(models.Tag)
-admin.site.register(models.Ingredient)
-# @admin.register(models.Ingredient)
 
 
 class IngredientInAdmin(admin.TabularInline):
     model = models.Recipe.ingredients.through
-    # class IngredientAdmin(admin.ModelAdmin):
-    #     list_display = ('name',)
-    #     list_filter = ('name',)
+
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = [IngredientInAdmin, ]
+    list_display = ('pk', 'name', 'cooking_time', 'text', 'image', 'author',)
+    list_editable = ('name', 'cooking_time', 'text', 'image', 'author',)
+    readonly_fields = ('in_favorites',)
+    list_filter = ('name', 'author',)
+    empty_value_display = '-пусто-'
 
-    class RecipeAdmin(admin.ModelAdmin):
-        list_display = ('name', 'author', 'pub_date')
-        list_filter = ('name', 'author', 'tags',)
+    @admin.display(description='В избранном')
+    def in_favorites(self, obj):
+        return obj.favorite_recipe.count()
 
-@admin.register(Tag)
+
+@admin.register(models.IngredientInRecipe)
+class IngredientInRecipeAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'recipe', 'ingredient', 'amount')
+    list_editable = ('recipe', 'ingredient', 'amount')
+
+
+@admin.register(models.Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'recipe')
+    list_editable = ('user', 'recipe')
+
+
+@admin.register(models.ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'recipe', )
+    list_editable = ('user', 'recipe', )
+
+
+@admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'slug',)
+    list_display = ('name', 'color', 'slug', 'pk')
+    list_editable = ('color', 'slug')
+    list_display_links = ('name',)
+    empty_value_display = '-пусто-'
 
 
-# @admin.register(Recipe)
-# class RecipeAdmin(admin.ModelAdmin):
-#     list_display = ('title', 'author', 'pub_date')
-#     list_filter = ('title', 'author', 'tag', )
-
-
-# @admin.register(Ingredient)
-# class IngredientAdmin(admin.ModelAdmin):
-#     list_display = ('name', )
-#     list_filter = ('name',)
+@admin.register(models.Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'measurement_unit', 'pk')
+    list_filter = ('name',)
+    search_fields = ('name',)
