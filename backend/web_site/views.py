@@ -8,6 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from .permissions import IsAuthorOrReadOnly
@@ -128,8 +129,10 @@ class ShoppingCartViewSet(APIView):
         models.ShoppingCart.objects.get(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @api_view(["GET", ])
-    def download_shopping_cart(request):
+
+class DownloadShoppingCartView(APIView):
+
+    def get(self, request):
         user = request.user
         shopping_cart = user.shopping_cart.all()
         buying_list = {}
