@@ -6,12 +6,11 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .permissions import IsAuthorOrReadOnly
 from . import serializers, models
+from .paginator import CustomPagination
 
 
 class TagView(viewsets.ModelViewSet):
@@ -44,7 +43,8 @@ class RecipeView(viewsets.ModelViewSet):
     permissions = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
     # filter_class = RecipeFilter
-    pagination_class = PageNumberPagination
+    # pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
