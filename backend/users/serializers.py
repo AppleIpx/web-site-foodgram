@@ -8,9 +8,19 @@ from .models import Follow
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name"]
+        fields = ["id", "username", "email", "first_name", "last_name", "is_subscribed"]
+
+    def get_is_subscribed(self, obj):
+        if (self.context.get('request')
+                and not self.context['request'].user.is_anonymous):
+            return Follow.objects.filter(user=self.context['request'].user,
+                                            following=obj).exists()
+        return False
 
 
 class PasswordSerializer(serializers.Serializer):

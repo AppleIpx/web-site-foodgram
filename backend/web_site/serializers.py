@@ -1,11 +1,5 @@
-from collections import OrderedDict
-
-from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
-
 from web_site.models import Ingredient, Tag, Recipe
 from users.serializers import UserSerializer
 from . import models
@@ -150,13 +144,6 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
                                     context=self.context).data
 
 
-# class FavoriteListSerializers(ShowRecipeSerializer):
-#     class Meta:
-#         model = models.Recipe
-#         fields = ["id", "tags", "author", "ingredients", "is_favorited", "is_in_shopping_cart",
-#                   "name", "image", "text", "cooking_time", ]
-
-
 class FavoriteSerializers(serializers.ModelSerializer):
     recipe = serializers.PrimaryKeyRelatedField(queryset=models.Recipe.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=models.User.objects.all())
@@ -173,6 +160,9 @@ class TugInfoSerializers(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializers(FavoriteSerializers):
+
     class Meta:
         model = models.ShoppingCart
         fields = ["recipe", "user", ]
+
+
