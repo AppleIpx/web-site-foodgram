@@ -12,9 +12,6 @@ class User(AbstractUser):
     first_name = models.CharField(verbose_name="Имя", max_length=30, blank=False)
     last_name = models.CharField(verbose_name="Фамилия", max_length=30, blank=False)
 
-    # def __str__(self):
-    #     return self.email
-
 
 class Follow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower")

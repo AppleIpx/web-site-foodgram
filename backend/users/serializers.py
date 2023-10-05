@@ -8,7 +8,6 @@ from .models import Follow
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:

@@ -15,7 +15,6 @@ class TagSerializers(serializers.ModelSerializer):
 class IngredientInRecipeSerializers(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    # unit = serializers.ReadOnlyField(source='ingredient.unit')
     measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
 
     class Meta:
@@ -62,7 +61,6 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
 
 class AddIngredientToRecipeSerializers(serializers.ModelSerializer):
-    # id = serializers.PrimaryKeyRelatedField(queryset=models.Ingredient.objects.all())
     id = serializers.IntegerField()
 
     # позволяет работать с первычными ключами
@@ -82,7 +80,6 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(many=True, queryset=models.Tag.objects.all(), slug_field="id")
 
     # queryset - это запрос к бд, который определяет откуда брать данные.
-    # slug_field - поле, которое будет использоваться для связывания с тегами
 
     class Meta:
         model = models.Recipe

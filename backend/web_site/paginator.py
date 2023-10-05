@@ -1,5 +1,4 @@
 from rest_framework.pagination import PageNumberPagination
-
 from . import models
 
 
@@ -8,8 +7,7 @@ class CustomPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         response = super().get_paginated_response(data)
-
-        # Изменить значение "count" на количество рецептов в списке покупок
+        # Изменяем значение "count" на количество рецептов в списке покупок
         request = self.request
         if request and not request.user.is_anonymous:
             user = request.user
@@ -17,5 +15,4 @@ class CustomPagination(PageNumberPagination):
             response.data['count'] = shopping_cart_count
         else:
             response.data['count'] = 0  # Если пользователь анонимный или отсутствует запрос
-
         return response

@@ -4,11 +4,9 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .permissions import IsAuthorOrReadOnly
 from . import serializers, models
 from .paginator import CustomPagination
 
@@ -39,11 +37,8 @@ class IngredientsView(viewsets.ModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     queryset = models.Recipe.objects.all()
-    # permission_classes = [IsAuthorOrReadOnly, ]
     permissions = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
-    # filter_class = RecipeFilter
-    # pagination_class = PageNumberPagination
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -84,7 +79,7 @@ class RecipeView(viewsets.ModelViewSet):
 
 
 class FavoriteView(APIView):
-    permission_classes = [IsAuthorOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     @action(methods=["post", ], detail=True, )
     def post(self, request, recipe_id):
