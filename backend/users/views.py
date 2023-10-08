@@ -49,7 +49,7 @@ class UserView(viewsets.ModelViewSet):
     """detail=True - что действие будут применено для конкретного объекта
     following - человек на которого хотят подписаться
     follow - проверка связи между подписчиком и человека на которого
-    хотят подписатся"""
+    хотят подписаться"""
 
     @action(["get", "delete", "post"], detail=True, permission_classes=(IsAuthenticated,))
     def subscribe(self, request, pk=None):
