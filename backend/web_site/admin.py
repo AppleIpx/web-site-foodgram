@@ -8,7 +8,7 @@ class IngredientInAdmin(admin.TabularInline):
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'cooking_time', 'text', 'image', 'author',)
+    list_display = ('pk', 'name', 'cooking_time', 'text', "in_favorites", 'image', 'author', )
     list_editable = ('name', 'cooking_time', 'text', 'image', 'author',)
     readonly_fields = ('in_favorites',)
     list_filter = ('name', 'author',)
@@ -16,7 +16,9 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='В избранном')
     def in_favorites(self, obj):
-        return obj.favorite_recipe.count()
+        return obj.favorite.count()
+
+    in_favorites.short_description = "В избранном"
 
 
 @admin.register(models.IngredientInRecipe)
