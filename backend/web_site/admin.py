@@ -29,6 +29,7 @@ class IngredientInRecipeAdmin(admin.ModelAdmin):
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
     list_editable = ('user', 'recipe')
+    ordering = ("user",)
 
 
 @admin.register(models.ShoppingCart)
