@@ -21,28 +21,21 @@ class UserView(viewsets.ModelViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        if "password" in self.request.data:
-            password = make_password(self.request.data["password"])
-            serializer.save(password=password)
-        else:
-            serializer.save()
-
-    def perform_update(self, serializer):
-        if "password" in self.request.data:
-            password = make_password(self.request.data["password"])
-            serializer.save(password=password)
-        else:
-            serializer.save()
-
-    @action(["post"], detail=False)
+    @action(["post"], detail=False, permission_classes=(IsAuthenticated, ))
     def set_password(self, request):
         user = self.request.user
         serializer = PasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            user.set_password(serializer.validated_data["new_password"])
-            user.save()
-            return Response({"status": "password set"})
+        if serializer.is_valid(raise_exception=True):
+            new_password = request.data.get("new_password")
+            current_password = request.data.get("current_password")
+            if user.check_password(current_password):
+                if new_password == current_password:
+                    raise serializers.ValidationError({'new_password': 'Новый пароль должен отличаться от текущего.'})
+                user.set_password(new_password)
+                user.save()
+                return Response({"status": "password set"})
+            else:
+                raise serializers.ValidationError({'current_password': 'Неправильный пароль.'})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

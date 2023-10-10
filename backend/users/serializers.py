@@ -1,3 +1,5 @@
+from django.contrib.auth.password_validation import validate_password
+from django.core import exceptions as django_exceptions
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from . import models
@@ -26,6 +28,15 @@ class PasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
     # в запросе обязательно должен быть пароль
     current_password = serializers.CharField(required=True)
+
+    def validate(self, obj):
+        try:
+            validate_password(obj['new_password'])
+        except django_exceptions.ValidationError as e:
+            raise serializers.ValidationError(
+                {'new_password': list(e.messages)}
+            )
+        return super().validate(obj)
 
     class Meta:
         model = User
