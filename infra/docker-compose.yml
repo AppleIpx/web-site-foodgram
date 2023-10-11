@@ -5,12 +5,10 @@ services:
     container_name: postgres
     image: postgres:15.4
     restart: always
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
 
   frontend:
     build:
@@ -23,13 +21,13 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-#    command:
-#      - python manage.py migrate
     restart: always
     volumes:
       - ./backend/:/usr/src/app/backend/
       - static_value:/app/static/
       - media_value:/app/media/
+    env_file:
+      - ./.env
     expose:
       - 8000
     depends_on:
