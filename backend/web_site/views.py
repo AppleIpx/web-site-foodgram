@@ -8,7 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from . import serializers, models
-from .paginator import CustomPagination
+from rest_framework.pagination import PageNumberPagination
 
 
 class TagView(viewsets.ModelViewSet):
@@ -37,9 +37,9 @@ class IngredientsView(viewsets.ModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     queryset = models.Recipe.objects.all()
+    pagination_class = PageNumberPagination
     permissions = [IsAuthenticatedOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
-    pagination_class = CustomPagination
 
     def get_queryset(self):
         is_favorited = self.request.query_params.get('is_favorited')
@@ -61,7 +61,6 @@ class RecipeView(viewsets.ModelViewSet):
             tag_filter = Q(tags__slug__in=tags)
             # distinct() для получения уникальных записей
             queryset = queryset.filter(tag_filter).distinct()
-
         return queryset
 
     """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
