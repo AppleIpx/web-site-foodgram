@@ -26,6 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = [
+    'http://213.171.3.15'
     '213.171.3.15',
     'localhost',
     '127.0.0.1',
@@ -34,7 +35,7 @@ ALLOWED_HOSTS = [
     'http://localhost'
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost", ]
+CSRF_TRUSTED_ORIGINS = ["http://localhost", 'http://213.171.3.15', ]
 
 # Application definition
 
