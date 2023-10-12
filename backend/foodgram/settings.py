@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
     'http://localhost'
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost", 'http://213.171.3.15', ]
+CSRF_TRUSTED_ORIGINS = ["http://localhost", 'http://213.171.3.15', '213.171.3.15']
 
 # Application definition
 
