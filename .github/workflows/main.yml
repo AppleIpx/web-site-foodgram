@@ -26,9 +26,16 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
 
           script: |
-            cd /project/web-site-foodgram/infra
+            cd /project
+            mkdir check
+#            cd /project/web-site-foodgram/infra
+            cd web-site-foodgram/infra
             git pull
-            docker-compose down
-            docker-compose build
-            docker-compose up -d
+#            docker-compose down
+#            docker-compose build
+#            docker-compose up -d
+#            docker system prune --force
+            docker compose down
+            docker compose build
+            docker compose up -d
             docker system prune --force
