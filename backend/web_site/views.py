@@ -112,6 +112,7 @@ class ShoppingCartViewSet(APIView):
         data = {"user": user.id, "recipe": recipe_id, }
         if models.ShoppingCart.objects.filter(user=user, recipe_id=recipe_id).exists():
             return Response({"Ошибка": "Вы уже добавили в корзину"}, status=status.HTTP_400_BAD_REQUEST, )
+        # создание экземпляра
         serializer = serializers.ShoppingCartSerializers(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
