@@ -64,7 +64,6 @@ class IngredientInRecipe(models.Model):
     ingredient = models.ForeignKey(Ingredient, verbose_name='ингредиент', on_delete=models.CASCADE, related_name='ingredients',)
     recipe = models.ForeignKey(Recipe, verbose_name='рецепт', on_delete=models.CASCADE, related_name='recipes',)
     amount = models.IntegerField(verbose_name="количество", validators=[MinValueValidator(1)], null=True)
-    # measurement_unit = models.CharField(verbose_name="Единица измерения", max_length=20)
 
     class Meta:
         verbose_name = "Ингредиенты в рецепте"
