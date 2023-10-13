@@ -23,16 +23,11 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
 
           script: |
             cd /project/web-site-foodgram/infra
-            mkdir check
             git pull
-#            docker-compose down
-#            docker-compose build
-#            docker-compose up -d
-#            docker system prune --force
             docker-compose down
             docker-compose build
             docker-compose up -d
