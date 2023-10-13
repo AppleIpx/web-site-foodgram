@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
 
           script: |
-            cd /project/web-site-foodgram
+            cd /project/web-site-foodgram/infra
             git pull
             docker-compose down
             docker-compose build
