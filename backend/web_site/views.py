@@ -26,6 +26,7 @@ class IngredientsView(viewsets.ModelViewSet):
     search_fields = ["name", ]
     pagination_class = None
 
+    # метод, который выводит ингредиенты по первым буквам
     def get_queryset(self):
         name = str(self.request.query_params.get("name"))
         queryset = self.queryset
