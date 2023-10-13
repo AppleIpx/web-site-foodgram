@@ -27,7 +27,6 @@ jobs:
 
           script: |
             cd project/web-site-foodgram/infra
-            mkdir check
             git pull
             docker compose down
             docker compose build
