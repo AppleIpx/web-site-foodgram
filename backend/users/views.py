@@ -1,18 +1,35 @@
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import serializers
+from rest_framework import (
+    status,
+    viewsets
+)
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny
+)
 from rest_framework.response import Response
-from .serializers import *
-from .models import User, Follow
-from rest_framework.permissions import IsAuthenticated, AllowAny
+
+import serializers
+from .models import (
+    User,
+    Follow
+)
+from .serializers import (
+    UserSerializer,
+    PasswordSerializer,
+    FollowerSerializer,
+    ShowFollowerSerializer
+)
 
 
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
     pagination_class = None
 
     @action(methods=["get"], detail=False, permission_classes=(IsAuthenticated,))
@@ -28,7 +45,7 @@ class UserView(viewsets.ModelViewSet):
         else:
             serializer.save()
 
-    @action(["post"], detail=False, permission_classes=(IsAuthenticated, ))
+    @action(["post"], detail=False, permission_classes=(IsAuthenticated,))
     def set_password(self, request):
         user = self.request.user
         serializer = PasswordSerializer(data=request.data)
@@ -82,4 +99,3 @@ class UserView(viewsets.ModelViewSet):
         serializer = ShowFollowerSerializer(result_page, many=True,
                                             context={"current_user": user})
         return paginator.get_paginated_response(serializer.data)
-

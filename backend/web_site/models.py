@@ -1,7 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib.auth import get_user_model
-
 
 User = get_user_model()
 
@@ -70,7 +69,10 @@ class IngredientInRecipe(models.Model):
         verbose_name_plural = "Ингредиенты в рецептах"
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'ingredient'],
+                fields=[
+                    'recipe',
+                    'ingredient'
+                ],
                 name='unique_combination'
             )
         ]
@@ -102,7 +104,10 @@ class Favorite(models.Model):
         ordering = ["when_added"]
         verbose_name = "Избранный рецепт"
         verbose_name_plural = verbose_name
-        unique_together = ("user", "recipe")
+        unique_together = (
+            "user",
+            "recipe"
+        )
 
     def __str__(self):
         return f"{self.user} added {self.recipe}"
@@ -121,7 +126,10 @@ class ShoppingCart(models.Model):
         verbose_name_plural = "Список покупок"
 
         # Делаем эти значения в бд уникальными
-        unique_together = ("user", "recipe")
+        unique_together = (
+            "user",
+            "recipe"
+        )
 
     def __str__(self):
         return f"{self.user} added {self.recipe}"

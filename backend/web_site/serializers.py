@@ -1,15 +1,20 @@
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from web_site.models import Ingredient, Tag, Recipe
+
 from users.serializers import UserSerializer
 from . import models
-from drf_extra_fields.fields import Base64ImageField
 
 
 class TagSerializers(serializers.ModelSerializer):
     class Meta:
         model = models.Tag
-        fields = ["id", "name", "color", "slug", ]
+        fields = (
+            "id",
+            "name",
+            "color",
+            "slug"
+        )
 
 
 class IngredientInRecipeSerializers(serializers.ModelSerializer):
@@ -19,13 +24,22 @@ class IngredientInRecipeSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = models.IngredientInRecipe
-        fields = ("id", "name", "measurement_unit", "amount")
+        fields = (
+            "id",
+            "name",
+            "measurement_unit",
+            "amount"
+        )
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Ingredient
-        fields = ["id", "name", "measurement_unit"]
+        fields = (
+            "id",
+            "name",
+            "measurement_unit"
+        )
 
 
 class ShowRecipeSerializer(serializers.ModelSerializer):
@@ -38,8 +52,18 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Recipe
-        fields = ["id", "tags", "author", "ingredients", "is_favorited", "is_in_shopping_cart",
-                  "name", "image", "text", "cooking_time", ]
+        fields = (
+            "id",
+            "tags",
+            "author",
+            "ingredients",
+            "is_favorited",
+            "is_in_shopping_cart",
+            "name",
+            "image",
+            "text",
+            "cooking_time"
+        )
 
     def get_ingredients(self, obj):
         ingredients = models.IngredientInRecipe.objects.filter(recipe=obj)
@@ -67,7 +91,10 @@ class AddIngredientToRecipeSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = models.IngredientInRecipe
-        fields = ("id", "amount",)
+        fields = (
+            "id",
+            "amount"
+        )
 
 
 class CreateRecipeSerializers(serializers.ModelSerializer):
@@ -83,8 +110,16 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = models.Recipe
-        fields = ["id", "tags", "author", "ingredients", "name", "image",
-                  "text", "cooking_time"]
+        fields = (
+            "id",
+            "tags",
+            "author",
+            "ingredients",
+            "name",
+            "image",
+            "text",
+            "cooking_time"
+        )
 
     def validate(self, obj):
         for field in ['name', 'text', 'cooking_time']:
@@ -106,19 +141,18 @@ class CreateRecipeSerializers(serializers.ModelSerializer):
         for ingredient in ingredients:
             ingredient_id = ingredient['id']
             amount = ingredient['amount']
-
             # Создаем запись в модели IngredientInRecipe
             models.IngredientInRecipe.objects.create(recipe=recipe,
-                ingredient=Ingredient.objects.get(pk=ingredient_id),
-                amount=amount
-            )
+                                                     ingredient=models.Ingredient.objects.get(pk=ingredient_id),
+                                                     amount=amount
+                                                     )
 
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(author=self.context['request'].user,
-                                       **validated_data)
+        recipe = models.Recipe.objects.create(author=self.context['request'].user,
+                                              **validated_data)
         self.tags_and_ingredients_set(recipe, tags, ingredients)
         return recipe
 
@@ -147,19 +181,22 @@ class FavoriteSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = models.Favorite
-        fields = ["recipe", "user", ]
+        fields = (
+            "recipe",
+            "user"
+        )
 
 
 class TugInfoSerializers(serializers.ModelSerializer):
     class Meta:
-        model = Tag
+        model = models.Tag
         fields = "__all__"
 
 
 class ShoppingCartSerializers(FavoriteSerializers):
-
     class Meta:
         model = models.ShoppingCart
-        fields = ["recipe", "user", ]
-
-
+        fields = (
+            "recipe",
+            "user"
+        )
