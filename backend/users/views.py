@@ -13,7 +13,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
-import serializers
+from rest_framework import serializers
 from .models import (
     User,
     Follow
