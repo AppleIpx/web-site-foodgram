@@ -7,10 +7,10 @@
 1. Сделать клон проекта "git clone https://github.com/AppleIpx/web-site-foodgram.git"
 2. Установите docker "https://www.docker.com/products/docker-desktop/"
 3. Создайте файл /infra/.env. Шаблон для заполнения файла нахоится в /infra/.env.example
-4. Для заполнения БД необходимо выполнить команду "docker-compose exec backend python manage.py filling_db --no-input"
-5. Выполните сборку проекта "docker-compose build"
-6. Создайте администратора(супер юзера) "Создайте суперюзера docker-compose exec backend python manage.py createsuperuser"
-7. Далее необходимо запустить проект "docker-compose up". Миграции и сбор статики происходит автоматически
+4. Выполните сборку проекта "docker-compose build"
+5. Далее необходимо запустить проект "docker-compose up". Миграции и сбор статики происходят автоматически
+6. Для заполнения БД необходимо выполнить команду "docker-compose exec backend python manage.py filling_db --no-input"
+7. Создайте администратора(супер юзера) "docker-compose exec backend python manage.py createsuperuser"
 8. Заходим в браузер и в URL  пишем localhost/ и попадаем на главную страницу
 9. Для корректного создания рецепта необходимо через админ панель "localhost/admin/"(указать те данные, которые вы использовали при создании администратра (супер юзера)) и добавить теги,
 10. Документация "localhost/api/docs/"
