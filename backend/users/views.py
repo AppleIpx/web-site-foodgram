@@ -1,6 +1,5 @@
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
 from rest_framework import (
     status,
     viewsets
@@ -32,9 +31,16 @@ class UserView(viewsets.ModelViewSet):
     permission_classes = (AllowAny,)
     pagination_class = None
 
-    @action(methods=["get"], detail=False, permission_classes=(IsAuthenticated,))
+    @action(
+        methods=["get"],
+        detail=False,
+        permission_classes=(IsAuthenticated, )
+    )
     def me(self, request):
-        user = get_object_or_404(User, pk=request.user.id)
+        user = get_object_or_404(
+            User,
+            pk=request.user.id
+        )
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
@@ -45,7 +51,11 @@ class UserView(viewsets.ModelViewSet):
         else:
             serializer.save()
 
-    @action(["post"], detail=False, permission_classes=(IsAuthenticated,))
+    @action(
+        ["post"],
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
     def set_password(self, request):
         user = self.request.user
         serializer = PasswordSerializer(data=request.data)
@@ -54,21 +64,30 @@ class UserView(viewsets.ModelViewSet):
             current_password = request.data.get("current_password")
             if user.check_password(current_password):
                 if new_password == current_password:
-                    raise serializers.ValidationError({'new_password': 'Новый пароль должен отличаться от текущего.'})
+                    raise serializers.ValidationError(
+                        {'new_password': 'Новый пароль должен отличаться от текущего.'}
+                    )
                 user.set_password(new_password)
                 user.save()
                 return Response({"status": "password set"})
             else:
-                raise serializers.ValidationError({'current_password': 'Неправильный пароль.'})
+                raise serializers.ValidationError(
+                    {'current_password': 'Неправильный пароль.'}
+                )
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
     """detail=True - что действие будут применено для конкретного объекта
     following - человек на которого хотят подписаться
     follow - проверка связи между подписчиком и человека на которого
     хотят подписаться"""
 
-    @action(["get", "delete", "post"], detail=True, permission_classes=(IsAuthenticated,))
+    @action(["get", "delete", "post"],
+            detail=True,
+            permission_classes=(IsAuthenticated,)
+            )
     def subscribe(self, request, pk=None):
         user = request.user
         following = get_object_or_404(User, pk=pk)
@@ -77,16 +96,24 @@ class UserView(viewsets.ModelViewSet):
                 "following": following.id, }
         if request.method == "GET" or request.method == "POST":
             if follow.exists():
-                return Response("Вы уже подписаны", status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    "Вы уже подписаны", status=status.HTTP_400_BAD_REQUEST
+                )
             serializer = FollowerSerializer(data=data, context=request)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == "DELETE":
             follow.delete()
-            return Response("Удаление прошло успешно", status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                "Удаление прошло успешно",
+                status=status.HTTP_204_NO_CONTENT
+            )
 
-    @action(methods=["get", "post", ], detail=False, permission_classes=(IsAuthenticated,))
+    @action(methods=["get", "post", ],
+            detail=False,
+            permission_classes=(IsAuthenticated,)
+            )
     def subscriptions(self, request):
         user = request.user
         follow = Follow.objects.filter(user=user)

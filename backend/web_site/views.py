@@ -79,8 +79,6 @@ class RecipeView(viewsets.ModelViewSet):
             queryset = queryset.filter(tag_filter).distinct()
         return queryset
 
-    """Данная функция позволяет определить какой сериализатор следует использовать в зависимости от HTTP запроса"""
-
     def get_serializer_class(self):
         method = self.request.method
         if method == "POST" or method == "PATCH":
@@ -101,9 +99,18 @@ class FavoriteView(APIView):
         user = request.user
         data = {"user": user.id, "recipe": recipe_id, }
         """Проверка, состоит ли объект модели в избранном для данного user и рецепта"""
-        if models.Favorite.objects.filter(user=user, recipe_id=recipe_id).exists():
-            return Response({"Ошибка": "Вы уже добавили в избранное"}, status=status.HTTP_400_BAD_REQUEST, )
-        serializer = serializers.FavoriteSerializers(data=data, context={"request": request})
+        if models.Favorite.objects.filter(
+                user=user,
+                recipe_id=recipe_id
+        ).exists():
+            return Response(
+                {"Ошибка": "Вы уже добавили в избранное"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = serializers.FavoriteSerializers(
+            data=data,
+            context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -112,7 +119,10 @@ class FavoriteView(APIView):
     def delete(self, request, recipe_id):
         user = request.user
         recipe = get_object_or_404(models.Recipe, id=recipe_id)
-        if not models.Favorite.objects.filter(user=user, recipe=recipe).exists():
+        if not models.Favorite.objects.filter(
+                user=user,
+                recipe=recipe
+        ).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         models.Favorite.objects.get(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -126,10 +136,19 @@ class ShoppingCartViewSet(APIView):
     def post(self, request, recipe_id):
         user = request.user
         data = {"user": user.id, "recipe": recipe_id, }
-        if models.ShoppingCart.objects.filter(user=user, recipe_id=recipe_id).exists():
-            return Response({"Ошибка": "Вы уже добавили в корзину"}, status=status.HTTP_400_BAD_REQUEST, )
+        if models.ShoppingCart.objects.filter(
+                user=user,
+                recipe_id=recipe_id
+        ).exists():
+            return Response(
+                {"Ошибка": "Вы уже добавили в корзину"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         # создание экземпляра
-        serializer = serializers.ShoppingCartSerializers(data=data, context={"request": request})
+        serializer = serializers.ShoppingCartSerializers(
+            data=data,
+            context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -138,7 +157,10 @@ class ShoppingCartViewSet(APIView):
     def delete(self, request, recipe_id):
         user = request.user
         recipe = get_object_or_404(models.Recipe, id=recipe_id)
-        if not models.ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+        if not models.ShoppingCart.objects.filter(
+                user=user,
+                recipe=recipe
+        ).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         models.ShoppingCart.objects.get(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

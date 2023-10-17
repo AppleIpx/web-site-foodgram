@@ -22,4 +22,3 @@ urlpatterns = [
     path('api/', include("users.urls")),
     path('api/', include("web_site.urls")),
 ]
-

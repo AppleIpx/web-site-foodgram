@@ -25,8 +25,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         if (self.context.get('request')
                 and not self.context['request'].user.is_anonymous):
-            return models.Follow.objects.filter(user=self.context['request'].user,
-                                            following=obj).exists()
+            return models.Follow.objects.filter(
+                user=self.context['request'].user,
+                following=obj
+            ).exists()
         return False
 
 
@@ -49,8 +51,9 @@ class PasswordSerializer(serializers.Serializer):
         fields = "__all__"
 
 
-"""Рецепт без ингредиентов"""
 class RecipeWithOutIngredientsSerializer(serializers.ModelSerializer):
+    """Рецепт без ингредиентов"""
+
     class Meta:
         model = Recipe
         fields = (
@@ -71,8 +74,12 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class FollowerSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=models.User.objects.all())
-    following = serializers.PrimaryKeyRelatedField(queryset=models.User.objects.all())
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=models.User.objects.all()
+    )
+    following = serializers.PrimaryKeyRelatedField(
+        queryset=models.User.objects.all()
+    )
 
     def validate(self, data):
         user = data.get("user")
@@ -88,12 +95,19 @@ class FollowerSerializer(serializers.ModelSerializer):
         )
         model = models.Follow
         """Проверка на уникальность"""
-        validators = [UniqueTogetherValidator(queryset=models.Follow.objects.all(),
-                                              fields=["user", "following"], )]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=models.Follow.objects.all(),
+                fields=["user", "following"]
+            )
+        ]
 
 
 class ShowFollowerSerializer(serializers.ModelSerializer):
-    recipes = RecipeWithOutIngredientsSerializer(many=True, required=True)
+    recipes = RecipeWithOutIngredientsSerializer(
+        many=True,
+        required=True
+    )
     is_subscribed = serializers.SerializerMethodField("if_is_subscribed")
     recipes_count = serializers.SerializerMethodField("get_recipes_count")
 
@@ -116,7 +130,10 @@ class ShowFollowerSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request is None or request.user.is_anonymous:
             return False
-        return models.Follow.objects.filter(user=request.user, following=obj).exists()
+        return models.Follow.objects.filter(
+            user=request.user,
+            following=obj
+        ).exists()
 
     def get_recipes_count(self, obj):
         count = obj.recipes.all().count()
