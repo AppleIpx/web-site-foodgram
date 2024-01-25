@@ -28,7 +28,7 @@ jobs:
           script: |
             cd project/web-site-foodgram/infra
             git pull
-            docker compose down
-            docker compose build
-            docker compose up -d
+            docker-compose down
+            docker-compose build
+            docker-compose up -d
             docker system prune --force
